@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+    <span>Skottlossningar idag: </span>
+    <span id="js_ctr"></span>
+    <p>Senaste incident </p>
+    <div id="js_lastIncident"></div>
+    <script>
+        let xhr = new XMLHttpRequest();
+        const search_keyword = 'Skottlossning'
+        // const search_keyword = 'Brand'
+        // const search_keyword = 'Arbetsplatsolycka'
+        // const search_keyword = 'Inbrott'
+        xhr.open("GET", "https://polisen.se/api/events");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.responseText);
+                const obj = JSON.parse(xhr.responseText);
+                console.log(obj);
+                var incidentCtr = 0
+                var lastIncidents = ""
+                var firstFound = ""
+                for (const x of obj) {
+                    // console.log(x.name)
+                    if (x.type == search_keyword) {
+                        const incidentDateEpoch = Date.parse(x.datetime);
+                        const incidentDate = new Date(incidentDateEpoch);
+                        console.log(x.name)
+                        var today = new Date();
+                        console.log(incidentDate.toDateString())
+                        console.log(today.toDateString())
+                        if (incidentDate.toDateString() == today.toDateString()) {
+
+                            console.log("Yepp")
+                            incidentCtr++
+                            lastIncidents += x.name
+                            lastIncidents += "<br>"
+                        }
+                        if (firstFound == "") {
+                            firstFound = x.name
+                        }
+                    }
+                }
+                document.getElementById("js_ctr").innerHTML = incidentCtr;
+                if (incidentCtr == 0) {
+                    document.getElementById("js_lastIncident").innerHTML = firstFound;
+                } else {
+                    document.getElementById("js_lastIncident").innerHTML = lastIncidents;
+                }
+            }
+        };
+
+        xhr.send();
+    </script>
+
+
+</body>
+
+</html>
