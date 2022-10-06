@@ -1,11 +1,26 @@
-<!DOCTYPE HTML>
+<!--
+  Uh oh.... You peeked under the hood...
+  Feel free to have a look, but keep in mind that this is a work in progress
+  and that I'm learning as I go. 
+-->
 <html>
 
-<body>
+<head>
+    <title>Dagens skjutning</title>
+    <span>DagensSkjutning.se - En daglig koll på antalet skjutningar</span>
+</head>
 
-    <span>Skottlossningar idag: </span>
-    <span id="js_ctr"></span>
-    <p>Senaste incident </p>
+<body>
+    <h1>
+        <span>Igår skjöts det: </span>
+        <span id="js_ctr2"></span>
+        <br>
+        <span>Idag har det hittils skjutits: </span>
+        <span id="js_ctr"></span>
+    </h1>
+    <h2>
+        <p>Senaste incidenter: </p>
+    </h2>
     <div id="js_lastIncident"></div>
     <script>
         let xhr = new XMLHttpRequest();
@@ -20,8 +35,10 @@
                 const obj = JSON.parse(xhr.responseText);
                 console.log(obj);
                 var incidentCtr = 0
+                var incidentCtr2 = 0
                 var lastIncidents = ""
                 var firstFound = ""
+                var hitctr = 0
                 for (const x of obj) {
                     // console.log(x.name)
                     if (x.type == search_keyword) {
@@ -29,21 +46,33 @@
                         const incidentDate = new Date(incidentDateEpoch);
                         console.log(x.name)
                         var today = new Date();
-                        console.log(incidentDate.toDateString())
-                        console.log(today.toDateString())
+                        var yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate()-1)
+                        // console.log(incidentDate.toDateString())
                         if (incidentDate.toDateString() == today.toDateString()) {
 
                             console.log("Yepp")
                             incidentCtr++
-                            lastIncidents += x.name
-                            lastIncidents += "<br>"
+                            // lastIncidents += x.name
+                            // lastIncidents += "<br>"
+                        } else if (incidentDate.toDateString() == yesterday.toDateString()) {
+                            incidentCtr2++
                         }
+                        // Assuming that the list is sorted. We always try to add one entry. TODO: make sure the list is sorted
                         if (firstFound == "") {
                             firstFound = x.name
                         }
+                        hitctr++
+                        if(hitctr<10){
+                            lastIncidents += x.name
+                            lastIncidents += "<br>"
+                        }
                     }
                 }
-                document.getElementById("js_ctr").innerHTML = incidentCtr;
+                var unit_1 = (incidentCtr == 1)? " gång":" gånger"
+                var unit_2 = (incidentCtr2 == 1)? " gång":" gånger"
+                document.getElementById("js_ctr").innerHTML = incidentCtr+unit_1;
+                document.getElementById("js_ctr2").innerHTML = incidentCtr2+unit_2;
                 if (incidentCtr == 0) {
                     document.getElementById("js_lastIncident").innerHTML = firstFound;
                 } else {
@@ -54,7 +83,14 @@
 
         xhr.send();
     </script>
-
+    <footer class="container">
+        <br><br><br><br><br><br>
+        <hr>
+        <p><b>Om hemsidan:</b> En dag daglig räknare om hur många skjutningar i Sverige som det har skett under dagen. Som källa har polisens API över 500 aktuella händelsenotiser använts.
+            <br>
+            Hemsidan är politiskt obunden och har endast som mål att visa hur många skjutningar som det skett under det senaste dygnet.
+        </p>
+    </footer>
 
 </body>
 
