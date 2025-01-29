@@ -7,16 +7,20 @@
 
 <head>
     <title>Dagens skjutning</title>
-    <span>DagensSkjutning.se - En daglig koll på antalet skjutningar</span>
+    <span>DagensSkjutning.se - En daglig koll på antalet skjutningar och sprängningar</span>
 </head>
 
 <body>
     <h1>
-        <span>Igår skjöts det: </span>
-        <span id="js_ctr2"></span>
+        <span>Igår skjöts det</span>
+        <span id="js_ctr1_yesterday"></span>
+        <span>och sprängdes </span>
+        <span id="js_ctr2_yesterday"></span>
         <br>
-        <span>Idag har det hittils skjutits: </span>
-        <span id="js_ctr"></span>
+        <span>Idag har det hittils skjutits  </span>
+        <span id="js_ctr1_today"></span>
+        <span>och sprängts </span>
+        <span id="js_ctr2_today"></span>
     </h1>
     <h2>
         <p>Senaste incidenter: </p>
@@ -25,6 +29,7 @@
     <script>
         let xhr = new XMLHttpRequest();
         const search_keyword = 'Skottlossning'
+        const search_keyword_2 = 'Explosion'
         // const search_keyword = 'Brand'
         // const search_keyword = 'Arbetsplatsolycka'
         // const search_keyword = 'Inbrott'
@@ -36,12 +41,14 @@
                 console.log(obj);
                 var incidentCtr = 0
                 var incidentCtr2 = 0
+                var incidentCtrYesterday = 0
+                var incidentCtr2Yesterday = 0
                 var lastIncidents = ""
                 var firstFound = ""
                 var hitctr = 0
                 for (const x of obj) {
                     // console.log(x.name)
-                    if (x.type == search_keyword) {
+                    if (x.type == search_keyword || x.type == search_keyword_2) {
                         const incidentDateEpoch = Date.parse(x.datetime);
                         const incidentDate = new Date(incidentDateEpoch);
                         console.log(x.name)
@@ -52,28 +59,37 @@
                         if (incidentDate.toDateString() == today.toDateString()) {
 
                             console.log("Yepp")
-                            incidentCtr++
-                            // lastIncidents += x.name
-                            // lastIncidents += "<br>"
+                            if(x.type == search_keyword){
+                                incidentCtr++
+                            }else{
+                                incidentCtr2++
+                            }
                         } else if (incidentDate.toDateString() == yesterday.toDateString()) {
-                            incidentCtr2++
+                            if(x.type == search_keyword){
+                                incidentCtrYesterday++
+                            }else{
+                                incidentCtr2Yesterday++
+                            }
                         }
                         // Assuming that the list is sorted. We always try to add one entry. TODO: make sure the list is sorted
                         if (firstFound == "") {
                             firstFound = x.name
                         }
                         hitctr++
-                        if(hitctr<10){
-                            lastIncidents += x.name
-                            lastIncidents += "<br>"
-                        }
+                        lastIncidents += x.name
+                        lastIncidents += "<br>"
+
                     }
                 }
-                var unit_1 = (incidentCtr == 1)? " gång":" gånger"
-                var unit_2 = (incidentCtr2 == 1)? " gång":" gånger"
-                document.getElementById("js_ctr").innerHTML = incidentCtr+unit_1;
-                document.getElementById("js_ctr2").innerHTML = incidentCtr2+unit_2;
-                if (incidentCtr == 0) {
+                var unit_1_today = (incidentCtr == 1)? " gång":" gånger"
+                var unit_2_today = (incidentCtr2 == 1)? " gång":" gånger"
+                var unit_1_yesterday = (incidentCtrYesterday == 1)? " gång":" gånger"
+                var unit_2_yesterday = (incidentCtr2Yesterday == 1)? " gång":" gånger"
+                document.getElementById("js_ctr1_today").innerHTML = incidentCtr+unit_1_today;
+                document.getElementById("js_ctr2_today").innerHTML = incidentCtrYesterday+unit_2_today;
+                document.getElementById("js_ctr1_yesterday").innerHTML = incidentCtrYesterday+unit_1_yesterday;
+                document.getElementById("js_ctr2_yesterday").innerHTML = incidentCtr2Yesterday+unit_2_yesterday;
+                if (hitctr == 0) {
                     document.getElementById("js_lastIncident").innerHTML = firstFound;
                 } else {
                     document.getElementById("js_lastIncident").innerHTML = lastIncidents;
@@ -86,7 +102,7 @@
     <footer class="container">
         <br><br><br><br><br><br>
         <hr>
-        <p><b>Om hemsidan:</b> En dag daglig räknare om hur många skjutningar i Sverige som det har skett under dagen. Som källa har polisens API över 500 aktuella händelsenotiser använts.
+        <p><b>Om hemsidan:</b> En dag daglig räknare om hur många skjutningar och sprängningar i Sverige som det har skett under dagen. Som källa har polisens API över 500 aktuella händelsenotiser använts.
             <br>
             Hemsidan är politiskt obunden och har endast som mål att visa hur många skjutningar som det skett under det senaste dygnet.
         </p>
